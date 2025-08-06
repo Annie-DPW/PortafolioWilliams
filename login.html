@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Iniciar Sesión</title>
+  <link rel="stylesheet" href="css/login.css">
+   <style>
+    :root {
+      --bg-color: #1f242d;
+      --second-bg-color: #323946;
+      --text-color: #fff;
+      --main-color: #0ef;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-color);
+    }
+
+    .login-container {
+      background-color: var(--second-bg-color);
+      padding: 40px 30px;
+      border-radius: 12px;
+      width: 320px;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+    }
+
+    .login-container h2 {
+      margin-bottom: 25px;
+      color: var(--main-color);
+      text-align: center;
+    }
+
+    .login-container input {
+      width: 100%;
+      padding: 12px;
+      margin: 12px 0;
+      border: none;
+      border-radius: 8px;
+      background-color: #1f2a35;
+      color: var(--text-color);
+    }
+
+    .login-container input::placeholder {
+      color: #aaa;
+    }
+
+    .login-container button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 20px;
+      background-color: var(--main-color);
+      border: none;
+      border-radius: 8px;
+      color: var(--bg-color);
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    .login-container button:hover {
+      background-color: #0bd;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h2>Acceso al Administrador</h2>
+    <form id="loginForm">
+      <input type="text" id="usuario" placeholder="Usuario" required>
+      <input type="password" id="clave" placeholder="Contraseña" required>
+      <button type="submit">Entrar</button>
+    </form>
+    <p id="mensaje" style="color: red; margin-top: 10px;"></p>
+  </div>
+
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const usuario = document.getElementById("usuario").value;
+      const clave = document.getElementById("clave").value;
+      const mensaje = document.getElementById("mensaje");
+
+      if (usuario === "admin" && clave === "1234") {
+        // Redirigir al panel del administrador
+        window.location.href = "actividades.html";
+      } else {
+        // Mostrar mensaje de error
+        mensaje.textContent = "Usuario o contraseña incorrectos.";
+      }
+    
+    if (usuario === "usuario" && clave === "5678") {
+        // Redirigir al panel del administrador
+        window.location.href = "index.html";
+      } else {
+        // Mostrar mensaje de error
+        mensaje.textContent = "Usuario o contraseña incorrectos.";
+      }
+    });
+    
+  </script>
+</body>
+</html>

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Administrador de Proyectos</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap");
+
+      :root {
+        --bg-dark: #0f1115;
+        --primary: #00fff7;
+        --primary-light: #33fff3;
+        --secondary: #1f1f2e;
+        --text-light: #dcdcdc;
+        --btn-bg: #111827;
+        --btn-hover: #00fff7;
+        --danger: #ff3d3d;
+        --success: #22c55e;
+        --warning: #facc15;
+      }
+
+      body {
+        font-family: "Orbitron", sans-serif;
+        background: var(--bg-dark);
+        color: var(--text-light);
+      }
+
+      h1,
+      h2,
+      h5 {
+        color: var(--primary);
+        text-shadow: 0 0 10px var(--primary);
+      }
+
+      .container {
+        background-color: #13141a;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 0 15px rgba(0, 255, 255, 0.1);
+      }
+
+      .btn {
+        border-radius: 10px;
+        font-weight: bold;
+        transition: 0.3s ease;
+        text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+      }
+
+      .btn-danger {
+        background-color: var(--danger);
+        border: none;
+      }
+
+      .btn-danger:hover {
+        background-color: #ff1c1c;
+        box-shadow: 0 0 10px var(--danger);
+      }
+
+      .btn-success:hover {
+        box-shadow: 0 0 10px var(--success);
+      }
+
+      .btn-warning:hover {
+        box-shadow: 0 0 10px var(--warning);
+      }
+
+      .btn-primary:hover {
+        background-color: var(--primary-light);
+        color: #000;
+        box-shadow: 0 0 10px var(--primary);
+      }
+
+      .modal-content {
+        background: #1a1c22;
+        border: 1px solid var(--primary);
+        border-radius: 15px;
+        color: var(--text-light);
+      }
+
+      .modal-header {
+        border-bottom: 1px solid var(--primary);
+      }
+
+      .form-control {
+        background: #21242d;
+        border: 1px solid #444;
+        color: white;
+      }
+
+      .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 10px var(--primary);
+      }
+
+      .project {
+        background: #1b1d26;
+        border-left: 4px solid var(--primary);
+        box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
+        transition: 0.3s ease;
+      }
+
+      .project:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+      }
+
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: var(--primary);
+        border-radius: 10px;
+      }
+
+      @media screen and (max-width: 768px) {
+        .project {
+          font-size: 0.9rem;
+        }
+
+        h1 {
+          font-size: 1.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container my-5">
+      <h1 class="text-center mb-4">Panel de Administración</h1>
+      <div class="text-center mb-4">
+        <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#uploadModal">
+          ➕ Subir Proyecto
+        </button>
+      </div>
+
+      <!-- Modal -->
+      <div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-md modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+              <h5 class="modal-title" id="uploadModalLabel">Subir Nuevo Proyecto</h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+              <form id="uploadForm" enctype="multipart/form-data">
+                <div class="mb-3">
+                  <label for="projectName" class="form-label">Nombre del proyecto</label>
+                  <input type="text" id="projectName" name="projectName" class="form-control" required />
+                </div>
+                <div class="mb-3">
+                  <label for="projectDesc" class="form-label">Descripción</label>
+                  <textarea id="projectDesc" name="projectDesc" class="form-control" required></textarea>
+                </div>
+                <div class="mb-3">
+                  <label for="projectFile" class="form-label">Subir archivo PDF</label>
+                  <input type="file" id="projectFile" name="projectFile" class="form-control" accept="application/pdf" required />
+                </div>
+              </form>
+              <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button class="btn btn-danger" onclick="addProject()">Subir Proyecto</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Proyectos -->
+      <div id="projectList" class="mt-5">
+        <h2>Proyectos Subidos</h2>
+      </div>
+    </div>
+
+    <script>
+      let projects = [];
+
+      window.addEventListener("load", () => {
+        const stored = localStorage.getItem("projects");
+        if (stored) {
+          projects = JSON.parse(stored);
+          renderProjects();
+        }
+      });
+
+      function addProject() {
+        const name = document.getElementById("projectName").value.trim();
+        const desc = document.getElementById("projectDesc").value.trim();
+        const fileInput = document.getElementById("projectFile");
+        const file = fileInput.files[0];
+
+        if (!name || !desc || !file) {
+          alert("Completa todos los campos y selecciona un archivo.");
+          return;
+        }
+
+        if (file.type !== "application/pdf") {
+          alert("Solo se permiten archivos PDF.");
+          return;
+        }
+
+        const fileURL = URL.createObjectURL(file);
+        projects.push({ name, desc, fileURL });
+        saveProjects();
+        renderProjects();
+        resetForm();
+        bootstrap.Modal.getInstance(document.getElementById("uploadModal")).hide();
+      }
+
+      function renderProjects() {
+        const container = document.getElementById("projectList");
+        container.innerHTML = "<h2>Proyectos Subidos</h2>";
+        projects.forEach((project, index) => {
+          container.innerHTML += `
+            <div class="project mb-4 p-3 border rounded">
+              <strong>${project.name}</strong>
+              <p>${project.desc}</p>
+              <p>📎 Archivo: <a href="${project.fileURL}" target="_blank">Ver PDF</a></p>
+              <a href="${project.fileURL}" target="_blank" class="btn btn-sm btn-primary me-2">📄 Ver</a>
+              <a href="${project.fileURL}" download class="btn btn-sm btn-success me-2">⬇️ Descargar</a>
+              <button class="btn btn-sm btn-warning me-2" onclick="editProject(${index})">✏️ Editar</button>
+              <button class="btn btn-sm btn-danger" onclick="deleteProject(${index})">🗑️ Eliminar</button>
+            </div>
+          `;
+        });
+      }
+
+      function editProject(index) {
+        const project = projects[index];
+        const newName = prompt("Nuevo nombre del proyecto:", project.name);
+        const newDesc = prompt("Nueva descripción:", project.desc);
+        if (newName && newDesc) {
+          projects[index].name = newName;
+          projects[index].desc = newDesc;
+          saveProjects();
+          renderProjects();
+        }
+      }
+
+      function deleteProject(index) {
+        if (confirm("¿Estás seguro de eliminar este proyecto?")) {
+          projects.splice(index, 1);
+          saveProjects();
+          renderProjects();
+        }
+      }
+
+      function saveProjects() {
+        localStorage.setItem("projects", JSON.stringify(projects));
+      }
+
+      function resetForm() {
+        document.getElementById("projectName").value = "";
+        document.getElementById("projectDesc").value = "";
+        document.getElementById("projectFile").value = "";
+      }
+    </script>
+  </body>
+</html>
